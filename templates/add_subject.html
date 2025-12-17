@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card mx-auto">
+  <div class="card-header text-center">Add Subject</div>
+  <div class="card-body">
+    <form method="post" class="row g-4">
+      <div class="col-md-8 mx-auto text-center">
+        <label for="subject" class="form-label fw-semibold">Subject Name:</label>
+        <input type="text" class="form-control mb-3" id="subject" name="subject" required>
+      </div>
+      <fieldset>
+        <legend class="fw-semibold text-accent mb-3">Lectures per Day</legend>
+        <div class="row gx-2">
+          {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+          <div class="col-6 col-sm-4 col-lg-2 mb-2">
+            <label for="{{ day }}" class="form-label">{{ day }}</label>
+            <input type="number" class="form-control" id="{{ day }}" name="{{ day }}" min="0" max="10" value="0">
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <div class="col-12 text-end mt-4">
+        <button type="submit" class="btn btn-primary">Add Subject</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

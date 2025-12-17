@@ -1,0 +1,30 @@
+<ul class="nav flex-column sidebar-links">
+    <li>
+        <a href="{{ url_for('dashboard') }}" 
+           class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-house-door me-2"></i>Dashboard
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('mark_attendance') }}" 
+           class="nav-link {% if request.endpoint == 'mark_attendance' %}active{% endif %}">
+            <i class="bi bi-calendar-event me-2"></i>Mark Attendance
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('subjects') }}" 
+           class="nav-link {% if request.endpoint == 'subjects' %}active{% endif %}">
+            <i class="bi bi-book me-2"></i>Subjects
+        </a>
+    </li>
+</ul>
+<div class="mt-auto pt-3">
+    <!-- Desktop toggle button has direct onclick handler -->
+    <button id="theme-toggle-desktop" onclick="toggleTheme()" class="btn btn-outline-light w-100 d-none d-lg-block">
+        <i id="theme-icon-desktop" class="bi bi-moon-fill me-2"></i> Toggle Theme
+    </button>
+    <!-- Mobile toggle button -->
+    <button id="theme-toggle-mobile" class="btn btn-outline-light w-100 d-lg-none">
+        <i id="theme-icon-mobile" class="bi bi-moon-fill me-2"></i> Toggle Theme
+    </button>
+</div>

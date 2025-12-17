@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-layout">
+  
+  <main class="dashboard-content p-4">
+    <h2>Mark Attendance</h2>
+    {% if message %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endif %}
+    <form method="POST">
+      <h4 class="fw-semibold mb-3">Lectures Scheduled for Today</h4>
+      {% if today_schedule %}
+      <table class="table table-bordered align-middle mb-4">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Lecture</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lec in today_schedule %}
+          <tr>
+            <td>{{ lec.subject }}</td>
+            <td>{{ lec.lecture_number }}</td>
+            <td>
+              <select name="{{ lec.subject }}_{{ lec.lecture_number }}" class="form-select form-select-sm">
+                <option value="Blank" {% if lec.status == "Blank" %}selected{% endif %}>--</option>
+                <option value="Attended" {% if lec.status == "Attended" %}selected{% endif %}>Attended</option>
+                <option value="Not Attended" {% if lec.status == "Not Attended" %}selected{% endif %}>Not Attended</option>
+                <option value="Cancelled" {% if lec.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-primary mb-5">Save Attendance</button>
+      {% else %}
+      <div class="alert alert-info mb-5">No lectures scheduled today!</div>
+      {% endif %}
+    </form>
+  </main>
+</div>
+<script>
+  document.getElementById("theme-toggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark-mode");
+  });
+</script>
+{% endblock %}

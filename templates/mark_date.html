@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-center mb-4">Mark Attendance for {{ date_str }}</h2>
+
+{% if today_lectures|length == 0 %}
+  <div class="alert alert-warning text-center">No lectures scheduled for this date.</div>
+{% else %}
+<div class="card mx-auto">
+  <div class="card-body">
+    <form method="post">
+      <div class="table-responsive mb-3">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Lecture</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subject_id, name, n_lectures in today_lectures %}
+              {% for lec in range(n_lectures) %}
+              <tr>
+                {% if lec == 0 %}
+                  <td rowspan="{{ n_lectures }}" class="fw-semibold">{{ name }}</td>
+                {% endif %}
+                <td>Lecture {{ lec + 1 }}</td>
+                <td>
+                  {% set current_status = attendance.get((subject_id, lec), 'Blank') %}
+                  <select name="sub{{ subject_id }}_lec{{ lec }}" class="form-select form-select-sm">
+                    <option value="Blank" {% if current_status == "Blank" %}selected{% endif %}>--</option>
+                    <option value="Attended" {% if current_status == "Attended" %}selected{% endif %}>Attended</option>
+                    <option value="Absent" {% if current_status == "Absent" %}selected{% endif %}>Absent</option>
+                    <option value="Cancelled" {% if current_status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                  </select>
+                </td>
+              </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-primary">Save Attendance</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

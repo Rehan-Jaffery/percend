@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header mb-4">
+      <h3><i class="bi bi-shield-check me-2"></i>percend</h3>
+    </div>
+    <ul class="nav flex-column sidebar-links">
+      <li><a href="{{ url_for('dashboard') }}" class="nav-link"><i class="bi bi-house-door me-2"></i>Dashboard</a></li>
+      <li><a href="{{ url_for('mark_attendance') }}" class="nav-link"><i class="bi bi-calendar-event me-2"></i>Mark Attendance</a></li>
+      <li><a href="{{ url_for('semesters') }}" class="nav-link active"><i class="bi bi-journal-bookmark me-2"></i>Semesters</a></li>
+      <li><a href="{{ url_for('subjects') }}" class="nav-link"><i class="bi bi-book me-2"></i>Subjects</a></li>
+    </ul>
+    <div class="mt-auto">
+      <button id="theme-toggle" class="btn btn-outline-light w-100">
+        <i id="theme-icon" class="bi bi-moon-fill me-2"></i> Toggle Theme
+      </button>
+    </div>
+  </aside>
+  <main class="dashboard-content p-4">
+    <h2 class="mb-4">Semesters</h2>
+    <p>This is the Semesters page. You can add your semesters management features here.</p>
+  </main>
+</div>
+<script>
+  document.getElementById("theme-toggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark-mode");
+  });
+</script>
+{% endblock %}

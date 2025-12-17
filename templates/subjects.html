@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-layout">
+
+  <main class="dashboard-content p-4">
+    <h2 class="mb-4">Subjects & Lectures</h2>
+    {% if message %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+          <input type="text" name="subject_name" class="form-control" placeholder="Subject Name (e.g. Java)" required>
+        </div>
+      </div>
+      <div class="row mb-4">
+        {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+        <div class="col-6 col-md-3 col-lg-2 mb-3">
+          <label class="fw-normal mb-1">{{ day }}</label>
+          <select name="num_{{ day }}" class="form-select form-select-sm">
+            <option value="0">No Lecture</option>
+            {% for n in range(1,6) %}
+            <option value="{{ n }}">{{ n }} lecture{{ "s" if n > 1 else "" }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" name="add_subject" value="1" class="btn btn-success">Add Subject/Lectures</button>
+    </form>
+
+    <hr>
+    <h5 class="mt-4">Current Lectures</h5>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Day</th>
+            <th>Lectures (per day)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in schedule %}
+          <tr>
+            <td>{{ entry.subject }}</td>
+            <td>{{ entry.day_of_week }}</td>
+            <td>{{ entry.number_per_day }}</td>
+            <td>
+              <form action="{{ url_for('delete_lecture', lecture_id=entry.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<script>
+  document.getElementById("theme-toggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark-mode");
+  });
+</script>
+{% endblock %}
