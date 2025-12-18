@@ -1,127 +1,261 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="dashboard-layout">
- 
-  <main class="dashboard-content p-4">
+  <main class="dashboard-content">
 
-    <!-- Attendance Prediction Section -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header fw-bold">Attendance Prediction</div>
-      <div class="card-body text-center">
-        {% if prediction_percent >= 75 %}
-          <h4 class="text-success">🎉 You are on track! Current attendance estimate: {{ prediction_percent }}%</h4>
-          <p>You are likely to maintain at least 75% attendance this month.</p>
-        {% else %}
-          <h4 class="text-danger">⚠️ Warning! Current attendance estimate: {{ prediction_percent }}%</h4>
-          <p>You might fall below the required 75% attendance this month. Increase attendance to improve.</p>
-        {% endif %}
+    <!-- Heading -->
+    <div class="container-fluid mb-4">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-2 mb-3">
+        <div>
+          <h2 class="mb-0 mar">Dashboard</h2>
+          <p class="text-muted mb-0">Attendance overview and prediction</p>
+        </div>
+      </div>
+
+      <!-- Top stats row: 3 cards -->
+      <div class="row g-3">
+        <div class="col-md-4 col-12">
+          <div class="card shadow-sm border-0 stat-card primary">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Classes Conducted</p>
+              <h3 class="mb-0">{{ summary.conducted }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="card shadow-sm border-0 stat-card success">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Classes Attended</p>
+              <h3 class="mb-0 text-success">{{ summary.attended }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="card shadow-sm border-0 stat-card danger">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Classes Missed</p>
+              <h3 class="mb-0 text-danger">{{ summary.missed }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full-width prediction banner -->
+      <div class="row g-3 mt-2">
+        <div class="col-12">
+          <div class="card shadow-sm border-0 stat-card purple prediction-card">
+            <div class="card-body">
+              <div>
+                <p class="text-muted small mb-1">Attendance Prediction</p>
+                <p class="mb-0 small prediction-text">
+                  {% if summary.prediction >= 75 %}
+                    You are likely to maintain at least 75% attendance this month.
+                  {% else %}
+                    Current trend is below 75%. Increase attendance to improve.
+                  {% endif %}
+                </p>
+              </div>
+              <div class="mt-3 mt-md-0 text-md-end">
+                <h3 class="mb-1">{{ summary.prediction }}%</h3>
+                <span class="badge bg-{{ 'success' if summary.prediction >= 75 else 'danger' }}">
+                  {{ 'On Track' if summary.prediction >= 75 else 'At Risk' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     {% if has_data %}
-      <div class="row g-4 equal-height">
+      <div class="row g-4 equal-height pad">
 
-        <!-- Bar Chart -->
-        <div class="col-lg-4 col-md-6 col-12">
-          <div class="card p-3 h-100 d-flex flex-column">
-            <h5 class="mb-3">Lectures Conducted vs Attended</h5>
+        <!-- Subject-wise Conducted vs Attended -->
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="card p-3 h-100 d-flex flex-column chart-card" data-chart-target="#barChartModal">
+            <h5 class="mb-1">SUBJECT-WISE ATTENDANCE</h5>
+            <p class="text-muted small mb-3">Lectures conducted vs attended</p>
             <canvas id="barChart" class="flex-grow-1"></canvas>
           </div>
         </div>
 
-        <!-- Pie Chart -->
-        <div class="col-lg-4 col-md-6 col-12">
-          <div class="card p-3 h-100 d-flex flex-column">
-            <h5 class="mb-3">This Month Lecture Status</h5>
-            {% if pie_has %}
-            <canvas id="pieChart" class="flex-grow-1"></canvas>
-            {% else %}
-            <div class="alert alert-info flex-grow-1 d-flex align-items-center justify-content-center">No records for this month yet.</div>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- Line Chart -->
-        <div class="col-lg-4 col-md-12 col-12">
-          <div class="card p-3 h-100 d-flex flex-column">
-            <h5 class="mb-3">Monthly Attendance %</h5>
+        <!-- Monthly Attendance % -->
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="card p-3 h-100 d-flex flex-column chart-card" data-chart-target="#lineChartModal">
+            <h5 class="mb-1">ATTENDANCE TREND</h5>
+            <p class="text-muted small mb-3">Monthly attendance percentage</p>
             <canvas id="lineChart" class="flex-grow-1"></canvas>
           </div>
         </div>
 
+        <!-- This Month Status -->
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="card p-3 h-100 d-flex flex-column chart-card" data-chart-target="#pieChartModal">
+            <h5 class="mb-1">THIS MONTH STATUS</h5>
+            <p class="text-muted small mb-3">Attended vs missed vs cancelled</p>
+            {% if pie_has %}
+              <canvas id="pieChart" class="flex-grow-1"></canvas>
+            {% else %}
+              <div class="alert alert-info flex-grow-1 d-flex align-items-center justify-content-center">
+                No records for this month yet.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Subject Ranking -->
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="card p-3 h-100 d-flex flex-column chart-card" data-chart-target="#rankChartModal">
+            <h5 class="mb-1">SUBJECT RANKING</h5>
+            <p class="text-muted small mb-3">Best and worst attendance</p>
+            <canvas id="rankChart" class="flex-grow-1"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modals for large charts -->
+      <div class="modal fade" id="barChartModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Subject-wise Attendance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="height: 500px;">
+              <canvas id="barChartLarge"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="pieChartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">This Month Status</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="height: 420px;">
+              <canvas id="pieChartLarge"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="lineChartModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Attendance Trend</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="height: 500px;">
+              <canvas id="lineChartLarge"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="rankChartModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Subject Ranking</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="height: 500px;">
+              <canvas id="rankChartLarge"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Chart JS -->
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
-        // Bar Chart - Animated, with legends and rainbows for easy reading
-        const barCtx = document.getElementById('barChart').getContext('2d');
-        new Chart(barCtx, {
+        // global dark colors
+        const axisColor = '#9ca3af';
+        const gridStrong = 'rgba(148,163,184,0.25)';
+        const gridSoft = 'rgba(148,163,184,0.15)';
+        const legendColor = '#e5e7eb';
+        const tooltipBg = '#020617';
+        const tooltipBorder = '#4b5563';
+
+        // 1. Bar chart
+        const barConfig = {
           type: 'bar',
           data: {
             labels: {{ bar_labels|tojson }},
             datasets: [
-              {
-                label: 'Conducted',
-                data: {{ conducted_counts|tojson }},
-                backgroundColor: '#2563eb'
-              },
-              {
-                label: 'Attended',
-                data: {{ attended_counts|tojson }},
-                backgroundColor: '#16a34a'
-              }
-            ],
+              { label: 'Conducted', data: {{ conducted_counts|tojson }}, backgroundColor: '#2563eb' },
+              { label: 'Attended',  data: {{ attended_counts|tojson }},  backgroundColor: '#16a34a' }
+            ]
           },
           options: {
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             responsive: true,
             animation: { duration: 800, easing: 'easeOutQuart' },
             scales: {
               y: {
                 beginAtZero: true,
-                title: { display: true, text: 'Number of Lectures' },
-                ticks: { stepSize: 1 }
+                title: { display: true, text: 'Number of Lectures', color: axisColor },
+                ticks: { stepSize: 1, color: axisColor },
+                grid: { color: gridStrong }
               },
               x: {
-                title: { display: true, text: 'Subjects' },
+                title: { display: true, text: 'Subjects', color: axisColor },
+                ticks: { color: axisColor },
+                grid: { color: gridSoft }
               }
             },
             plugins: {
-              legend: { position: 'top', labels: { boxWidth: 16, padding: 20 } },
-              tooltip: { mode: 'index', intersect: false }
+              legend: { position: 'top', labels: { boxWidth: 16, padding: 20, color: legendColor } },
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: tooltipBg,
+                titleColor: legendColor,
+                bodyColor: legendColor,
+                borderColor: tooltipBorder,
+                borderWidth: 1
+              }
             },
             interaction: { mode: 'nearest', axis: 'x', intersect: false }
           }
-        });
+        };
 
-        // Pie Chart - Smooth with hover effect
-        {% if pie_has %}
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        new Chart(pieCtx, {
+        // 2. Pie chart
+        const pieConfig = {
           type: 'pie',
           data: {
             labels: ['Conducted', 'Attended', 'Cancelled'],
             datasets: [{
               data: [{{ pie_conducted }}, {{ pie_attended }}, {{ pie_cancelled }}],
               backgroundColor: ['#2563eb', '#16a34a', '#facc15'],
-              hoverOffset: 40,
+              hoverOffset: 40
             }]
           },
           options: {
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             responsive: true,
             animation: { duration: 700, easing: 'easeOutCirc' },
             plugins: {
-              legend: { position: 'bottom' }
+              legend: { position: 'bottom', labels: { color: legendColor } },
+              tooltip: {
+                backgroundColor: tooltipBg,
+                titleColor: legendColor,
+                bodyColor: legendColor,
+                borderColor: tooltipBorder,
+                borderWidth: 1
+              }
             }
           }
-        });
-        {% endif %}
+        };
 
-        // Line Chart - Smaller with smooth curves and points, no legend
-        const lineCtx = document.getElementById('lineChart').getContext('2d');
-        new Chart(lineCtx, {
+        // 3. Line chart
+        const lineConfig = {
           type: 'line',
           data: {
             labels: {{ months|tojson }},
@@ -134,26 +268,137 @@
               tension: 0.4,
               pointRadius: 5,
               pointBackgroundColor: '#6d28d9',
-              pointHoverRadius: 7,
+              pointHoverRadius: 7
             }]
           },
           options: {
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             responsive: true,
             animation: { duration: 900, easing: 'easeOutQuart' },
-            layout: { padding: { top:10, bottom:10 } },
+            layout: { padding: { top: 10, bottom: 10 } },
             scales: {
               y: {
                 beginAtZero: true,
                 max: 100,
-                title: { display: true, text: 'Attendance %' }
+                title: { display: true, text: 'Attendance %', color: axisColor },
+                ticks: { color: axisColor },
+                grid: { color: gridStrong }
+              },
+              x: {
+                ticks: { color: axisColor },
+                grid: { color: gridSoft }
               }
             },
             plugins: {
               legend: { display: false },
-              tooltip: { enabled: true, mode: 'nearest' }
+              tooltip: {
+                enabled: true,
+                mode: 'nearest',
+                backgroundColor: tooltipBg,
+                titleColor: legendColor,
+                bodyColor: legendColor,
+                borderColor: tooltipBorder,
+                borderWidth: 1
+              }
             }
           }
+        };
+
+        // 4. Subject ranking chart
+        const subjectStats = {{ subject_stats|tojson }};
+        const rankLabels = [];
+        const rankValues = [];
+        for (const [subj, s] of Object.entries(subjectStats)) {
+          const total = (s.Total !== undefined ? s.Total : (s.Attended + s["Not Attended"] + s.Cancelled));
+          const pct = total > 0 ? Math.round((s.Attended / total) * 100) : 0;
+          rankLabels.push(subj);
+          rankValues.push(pct);
+        }
+
+        const rankConfig = {
+          type: 'bar',
+          data: {
+            labels: rankLabels,
+            datasets: [{
+              label: 'Attendance %',
+              data: rankValues,
+              backgroundColor: '#4f46e5'
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            maintainAspectRatio: true,
+            responsive: true,
+            scales: {
+              x: {
+                beginAtZero: true,
+                max: 100,
+                title: { display: true, text: 'Attendance %', color: axisColor },
+                ticks: { color: axisColor },
+                grid: { color: gridStrong }
+              },
+              y: {
+                ticks: { color: axisColor },
+                grid: { color: gridSoft }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: tooltipBg,
+                titleColor: legendColor,
+                bodyColor: legendColor,
+                borderColor: tooltipBorder,
+                borderWidth: 1
+              }
+            }
+          }
+        };
+
+        // Render small charts
+        const barChart  = new Chart(document.getElementById('barChart').getContext('2d'), barConfig);
+        const lineChart = new Chart(document.getElementById('lineChart').getContext('2d'), lineConfig);
+        {% if pie_has %}
+        const pieChart  = new Chart(document.getElementById('pieChart').getContext('2d'), pieConfig);
+        {% endif %}
+        const rankChart = new Chart(document.getElementById('rankChart').getContext('2d'), rankConfig);
+
+        // Render large charts in modals
+        const barChartLarge = new Chart(
+          document.getElementById('barChartLarge').getContext('2d'),
+          JSON.parse(JSON.stringify(barConfig))
+        );
+        barChartLarge.options.maintainAspectRatio = false;
+
+        {% if pie_has %}
+        const pieChartLarge = new Chart(
+          document.getElementById('pieChartLarge').getContext('2d'),
+          JSON.parse(JSON.stringify(pieConfig))
+        );
+        pieChartLarge.options.maintainAspectRatio = false;
+        {% endif %}
+
+        const lineChartLarge = new Chart(
+          document.getElementById('lineChartLarge').getContext('2d'),
+          JSON.parse(JSON.stringify(lineConfig))
+        );
+        lineChartLarge.options.maintainAspectRatio = false;
+
+        const rankChartLarge = new Chart(
+          document.getElementById('rankChartLarge').getContext('2d'),
+          JSON.parse(JSON.stringify(rankConfig))
+        );
+        rankChartLarge.options.maintainAspectRatio = false;
+
+        // Open modal on card click
+        document.querySelectorAll('.chart-card').forEach(card => {
+          card.addEventListener('click', function () {
+            const target = this.getAttribute('data-chart-target');
+            const modalEl = document.querySelector(target);
+            if (!modalEl) return;
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+          });
         });
       </script>
     {% else %}
@@ -161,31 +406,4 @@
     {% endif %}
   </main>
 </div>
-
-<style>
-  /* Make all cards equal height */
-  .equal-height > [class*='col-'] {
-    display: flex;
-  }
-  .equal-height .card {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-  }
-  .equal-height .card canvas {
-    flex-grow: 1;
-  }
-
-  /* Responsive padding and margins */
-  @media (max-width: 991px) {
-    .dashboard-content {
-      padding: 24px 12px;
-    }
-  }
-  @media (max-width: 575px) {
-    .dashboard-content {
-      padding: 16px 8px;
-    }
-  }
-</style>
 {% endblock %}
