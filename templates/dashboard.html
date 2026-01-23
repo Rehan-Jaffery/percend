@@ -187,10 +187,10 @@
         const barConfig = {
           type: 'bar',
           data: {
-            labels: {{ bar_labels|tojson }},
+            labels: {{ bar_labels|default([])|tojson }},
             datasets: [
-              { label: 'Conducted', data: {{ conducted_counts|tojson }}, backgroundColor: '#2563eb' },
-              { label: 'Attended',  data: {{ attended_counts|tojson }},  backgroundColor: '#16a34a' }
+              { label: 'Conducted', data: {{ conducted_counts|default([])|tojson }}, backgroundColor: '#2563eb' },
+              { label: 'Attended',  data: {{ attended_counts|default([])|tojson }},  backgroundColor: '#16a34a' }
             ]
           },
           options: {
@@ -232,7 +232,11 @@
           data: {
             labels: ['Conducted', 'Attended', 'Cancelled'],
             datasets: [{
-              data: [{{ pie_conducted }}, {{ pie_attended }}, {{ pie_cancelled }}],
+              data: [
+                {{ pie_conducted|default(0)|tojson }},
+                {{ pie_attended|default(0)|tojson }},
+                {{ pie_cancelled|default(0)|tojson }}
+              ],
               backgroundColor: ['#2563eb', '#16a34a', '#facc15'],
               hoverOffset: 40
             }]
@@ -258,10 +262,10 @@
         const lineConfig = {
           type: 'line',
           data: {
-            labels: {{ months|tojson }},
+            labels: {{ months|default([])|tojson }},
             datasets: [{
               label: 'Attendance %',
-              data: {{ percentages|tojson }},
+              data: {{ percentages|default([])|tojson }},
               fill: true,
               borderColor: '#6d28d9',
               backgroundColor: 'rgba(109,40,217,0.14)',
@@ -305,7 +309,7 @@
         };
 
         // 4. Subject ranking chart
-        const subjectStats = {{ subject_stats|tojson }};
+        const subjectStats = {{ subject_stats|default({})|tojson }};
         const rankLabels = [];
         const rankValues = [];
         for (const [subj, s] of Object.entries(subjectStats)) {

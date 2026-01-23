@@ -17,10 +17,15 @@
       Subjects
     </a>
   </li>
+  <li>
+    <a href="{{ url_for('semester_report', sem=current_semester) }}" class="{% if active_page == 'report' %}active{% endif %}">
+      <i class="bi bi-file-earmark-bar-graph"></i>
+      Semester Report
+    </a>
+  </li>
 </ul>
 
 <div class="mt-auto pt-3 sidebar-actions">
-  <!-- Desktop-only theme toggle -->
   <div class="d-none d-lg-flex w-100 mb-2">
     <button id="theme-toggle-desktop"
             class="theme-toggle-btn d-flex align-items-center w-100"
@@ -31,7 +36,6 @@
     </button>
   </div>
 
-  <!-- Logout via POST; visible on all screen sizes -->
   <form action="{{ url_for('logout') }}" method="post" class="w-100">
     <button type="submit" class="btn btn-danger w-100">
       <i class="bi bi-box-arrow-right me-1"></i> Logout

@@ -1,39 +1,58 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends "base.html" %}
 
-<div class="card mx-auto">
-  <div class="card-header text-center">{{ semester['name'] }}</div>
-  <div class="card-body text-center">
-    <p class="text-muted">{{ semester['start_date'] }} to {{ semester['end_date'] }}</p>
-    <h1 class="display-4">{{ overall_percentage }}%</h1>
-    <p class="fw-bold text-accent">Overall Attendance</p>
-    <hr>
-    <h4>Monthly Breakdown</h4>
-    <div class="table-responsive rounded-bottom mb-3">
-      <table class="table mb-0">
-        <thead>
-          <tr>
-            <th class="text-center">Month</th>
-            <th class="text-center">Attendance (%)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in monthly_percentages %}
-          <tr>
-            <td class="text-center">{{ m.month }}</td>
-            <td class="text-center">{{ m.percentage }}%</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Semester {{ sem }} Report</h2>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Overall Attendance</h5>
+          <p class="card-text fs-4 fw-semibold">
+            {{ overall_perc }}%
+          </p>
+        </div>
+      </div>
     </div>
-    <h4>Subjects in this Semester</h4>
-    <ul class="list-group">
-      {% for subj in subjects %}
-        <li class="list-group-item">{{ subj.name }}</li>
-      {% endfor %}
-    </ul>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Subject-wise Attendance</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Subject</th>
+              <th>Conducted</th>
+              <th>Attended</th>
+              <th>Attendance %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subj in subjects %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ subj.name }}</td>
+              <td>{{ subj.conducted }}</td>
+              <td>{{ subj.attended }}</td>
+              <td>{{ subj.perc }}%</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center py-3">
+                No records for this semester yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
-
 {% endblock %}
